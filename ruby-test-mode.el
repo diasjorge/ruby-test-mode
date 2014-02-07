@@ -265,7 +265,7 @@ depending on the filename."
 
 (defun ruby-test-spec-command (filename &optional line-number)
   (let (command options)
-    (if (file-exists-p ".zeus.sock")
+    (if (ruby-test-zeus-running-p filename)
         (setq command "zeus rspec")
       (setq command "bundle exec rspec"))
     (setq options (cons "-b" options))
@@ -275,7 +275,7 @@ depending on the filename."
 
 (defun ruby-test-test-command (filename &optional line-number)
   (let (command options name-options)
-    (if (file-exists-p ".zeus.sock")
+    (if (ruby-test-zeus-running-p filename)
         (setq command "zeus test")
       (setq command "bundle exec ruby"))
     (if (ruby-test-gem-root filename)
@@ -287,6 +287,11 @@ depending on the filename."
               (setq name-options (format "--name /%s/" test-case))
             (error "No test case at %s:%s" filename line-number))))
     (format "%s %s %s %s" command (mapconcat 'identity options " ") filename name-options)))
+
+(defun ruby-test-zeus-running-p (filename)
+  (let ((rails-root (ruby-test-rails-root filename)))
+    (and rails-root
+         (file-exists-p (expand-file-name ".zeus.sock" rails-root)))))
 
 (defun ruby-test-project-root (filename root-predicate)
   "Returns the project root directory for a FILENAME using the
