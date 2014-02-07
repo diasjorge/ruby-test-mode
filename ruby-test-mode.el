@@ -187,9 +187,8 @@ second element."
     target-filename))
 
 (defun ruby-test-find-testcase-at (file line)
-  (save-excursion
-    (set-buffer (get-file-buffer file))
-    (goto-line line)
+  (with-current-buffer (get-file-buffer file)
+    (forward-line (1- line))
     (end-of-line)
     (message "%s:%s" (current-buffer) (point))
     (if (re-search-backward (concat "^[ \t]*\\(def\\|test\\|it\\|should\\)[ \t]+"
@@ -231,7 +230,7 @@ filename is a Ruby implementation file."
   (interactive)
   (let ((filename (ruby-test-find-file)))
     (if filename
-        (ruby-test-run-command (ruby-test-command filename))
+        (ruby-test-run-command filename)
       (message ruby-test-not-found-message))))
 
 (defun ruby-test-run-at-point ()
@@ -242,15 +241,14 @@ as `ruby-test-run-file'"
     (let ((test-file-buffer (get-file-buffer filename)))
       (if (and filename
                test-file-buffer)
-          (save-excursion
-            (set-buffer test-file-buffer)
+          (with-current-buffer test-file-buffer
             (let ((line (line-number-at-pos (point))))
-              (ruby-test-run-command (ruby-test-command filename line))))
+              (ruby-test-run-command filename line)))
         (message ruby-test-not-found-message)))))
 
-(defun ruby-test-run-command (command)
+(defun ruby-test-run-command (filename &optional line-number)
   (setq default-directory (or (ruby-test-rails-root filename) (ruby-test-ruby-root filename)))
-  (compilation-start command t))
+  (compilation-start (ruby-test-command filename line-number) t))
 
 (defun ruby-test-command (filename &optional line-number)
   "Return the command to run a unit test or a specification
