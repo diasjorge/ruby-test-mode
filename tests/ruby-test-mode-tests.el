@@ -26,7 +26,8 @@
   (should (equal "test_with_question_mark_\\\\?" (ruby-test-testcase-name "\"test with question mark ?\"" "def")))
   (should (equal "test_with_quotes_.*somewhere" (ruby-test-testcase-name "\"test with quotes ' somewhere\"" "def")))
   (should (equal "test_with_parenthesis_.*somewhere.*" (ruby-test-testcase-name "\"test with parenthesis (somewhere)\"" "def")))
-  (should (equal "test with spaces from minitest" (ruby-test-testcase-name "test with spaces from minitest" "it")))
+  (should (equal "test with spaces from minitest spec" (ruby-test-testcase-name "\"test with spaces from minitest spec\"" "it")))
+  (should (equal "test_with_spaces_from_test_unit" (ruby-test-testcase-name "\"test with spaces from test unit\"" "test")))
   )
 
 (ert-deftest ruby-test-specification-filename ()

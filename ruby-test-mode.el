@@ -204,25 +204,23 @@ second element."
     (if (re-search-backward (concat "^[ \t]*\\(def\\|test\\|it\\|should\\)[ \t]+"
                                     "\\([\"']\\(.*?\\)[\"']\\|" ruby-symbol-re "*\\)"
                                     "[ \t]*") nil t)
-        (let ((name (match-string 3))
-              (method (match-string 1)))
+        (let ((name (match-string-no-properties 2))
+              (method (match-string-no-properties 1)))
           (ruby-test-testcase-name name method)))))
 
 (defun ruby-test-testcase-name (name method)
   "Returns the sanitized name of the test"
   (cond
-   ;; assume methods created with it are from minitest
-   ;; so no need to sanitize them
-   ((string= method "it")
-    name)
    ((string= name "setup")
     nil)
    ((string-match "^[\"']\\(.*\\)[\"']$" name)
-    (replace-regexp-in-string
-     "\\?" "\\\\\\\\?"
-     (replace-regexp-in-string
-      "'_?\\|(_?\\|)_?" ".*"
-      (replace-regexp-in-string " +" "_" (match-string 1 name)))))))
+    (if (string= method "it")
+        (match-string 1 name)
+      (replace-regexp-in-string
+       "\\?" "\\\\\\\\?"
+       (replace-regexp-in-string
+        "'_?\\|(_?\\|)_?" ".*"
+        (replace-regexp-in-string " +" "_" (match-string 1 name))))))))
 
 (defun ruby-test-implementation-filename (&optional filename)
   "Returns the implementation filename for the current buffer's
